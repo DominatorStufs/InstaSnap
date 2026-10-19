@@ -32,19 +32,6 @@ instasnap/
     └── __init__.py          # Permanent helper file (never deleted by cleanup)
 ```
 
-### 🔍 What is `insta_client.py` and why is it needed?
-> **`insta_client.py` is the core "Engine / Heart" of the entire tool.**
->
-> While you run `instant_uploader.py` and `cookie_extractor.py` in the terminal, **they both import and use `insta_client.py` under the hood**. It handles:
-> - Direct network communication with Instagram's private mobile API endpoints (`i.instagram.com`).
-> - Hardware emulation of a genuine **Samsung Galaxy S24 Ultra (Android 14)** with persistent device signatures.
-> - Official mobile `Authorization: Bearer IGT:2:...` token construction.
-> - High-speed binary transmission to Instagram's `rupload` servers.
-> - Dispatching media to the QuickSnap stream (`media/configure_to_quick_snap/`) and Story channel.
-> - Multi-layered profile resolution to fetch your real Instagram Username and Full Name.
->
-> ⚠️ **Do NOT delete `insta_client.py`!** Without it, neither the uploader nor the extractor will work.
-
 ---
 
 ## 🌟 Key Features
@@ -175,13 +162,10 @@ RECOMMENDED_VIDEO_SIZE_MB = 50.0    # Optimal QuickSnap limit (1-15s clips)
 
 ## ❓ Frequently Asked Questions (FAQ)
 
-**Q1: Can I delete `insta_client.py`?**  
-No! `insta_client.py` contains the core Instagram API engine. Both `instant_uploader.py` and `cookie_extractor.py` require it to connect to Instagram.
-
-**Q2: What is the difference between QuickSnap (Instant) and Story?**  
+**Q1: What is the difference between QuickSnap (Instant) and Story?**  
 Instagram Instants (QuickSnaps) appear in the direct message inbox stack for mutual followers or close friends and disappear after viewing. If an account has QuickSnap restricted, InstaSnap automatically falls back to standard Instagram Stories.
 
-**Q3: How often do I need to run `cookie_extractor.py`?**  
+**Q2: How often do I need to run `cookie_extractor.py`?**  
 Only once! Once extracted, the session is saved in `config.py` and reused for all future runs. You only run it again if you log out of Instagram or change your password.
 
 ---
