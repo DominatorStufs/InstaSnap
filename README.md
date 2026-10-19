@@ -1,6 +1,11 @@
 # ⚡ InstaSnap — Instagram Instant & Story Uploader
 
 <p align="center">
+  <img src="banner.png" alt="InstaSnap Banner by DominatorStufs" width="100%" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Author-DominatorStufs-purple.svg?logo=github" alt="Author" />
   <img src="https://img.shields.io/badge/Platform-Termux%20%7C%20Linux%20%7C%20Android-green.svg" alt="Platform" />
   <img src="https://img.shields.io/badge/Python-3.9%2B-blue.svg" alt="Python" />
   <img src="https://img.shields.io/badge/Instagram-Instant%20%28QuickSnap%29%20%26%20Story-E4405F.svg?logo=instagram" alt="Instagram" />
