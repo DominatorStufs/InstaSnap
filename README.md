@@ -17,6 +17,19 @@ A clean, fast, lightweight command-line suite built specifically for **Termux on
 
 ---
 
+## 🎬 Live Product Walkthrough
+
+Watch InstaSnap in action — step-by-step from automatic cookie extraction to 1-click Instant dispatch:
+
+<p align="center">
+  <video src="instasnap_reel.mp4" width="360" height="640" controls="controls" muted autoplay loop style="max-width: 100%; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+    <a href="instasnap_reel.mp4">▶ Click here to view or download the live video walkthrough (instasnap_reel.mp4)</a>
+  </video>
+</p>
+<p align="center"><em>⚡ Full 9:16 vertical demo of InstaSnap on Android / Termux</em></p>
+
+---
+
 ## 📁 Project Architecture & File Roles
 
 Here is what each file does and why it exists:
