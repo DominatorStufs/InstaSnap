@@ -19,23 +19,9 @@ A clean, fast, lightweight command-line suite built specifically for **Termux on
 
 ## 🎬 Live Product Walkthrough
 
-Watch InstaSnap in action — step-by-step from automa
+Watch InstaSnap in action — step-by-step from automatic cookie extraction to 1-click Instant dispatch:
 
 https://github.com/user-attachments/assets/99dce6ee-6e8a-40d4-8d4d-c6cbb79816cb
-
-tic cookie extraction to 1-click Instant dispatch:
-
-<p align="center">
-  <a href="instasnap_reel.mp4">
-    <img src="demo.gif" alt="InstaSnap Live Demo" width="320" style="max-width: 100%; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
-  </a>
-</p>
-<p align="center">
-  <a href="instasnap_reel.mp4">
-    <img src="https://img.shields.io/badge/▶%20Watch%20Full%20HD%20Video-With%20Audio%20(MP4)-E4405F.svg?style=for-the-badge&logo=instagram" alt="Watch HD Video" />
-  </a>
-</p>
-<p align="center"><em>⚡ Full 9:16 vertical animated demonstration of InstaSnap on Android / Termux</em></p>
 
 ---
 
