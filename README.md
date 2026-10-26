@@ -19,7 +19,11 @@ A clean, fast, lightweight command-line suite built specifically for **Termux on
 
 ## 🎬 Live Product Walkthrough
 
-Watch InstaSnap in action — step-by-step from automatic cookie extraction to 1-click Instant dispatch:
+Watch InstaSnap in action — step-by-step from automa
+
+https://github.com/user-attachments/assets/99dce6ee-6e8a-40d4-8d4d-c6cbb79816cb
+
+tic cookie extraction to 1-click Instant dispatch:
 
 <p align="center">
   <a href="instasnap_reel.mp4">
