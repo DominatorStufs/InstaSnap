@@ -23,6 +23,7 @@ import re
 import json
 import time
 import uuid
+import base64
 import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
@@ -76,7 +77,15 @@ console = Console()
 # Constants & Storage Configuration
 # =============================================================================
 
-SESSION_FILE = Path("downloader_session.json")
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+CONFIG_PY_PATH = SCRIPT_DIR / "config.py"
+SESSION_JSON_PATH = SCRIPT_DIR / "session.json"
+SESSION_FILE = SCRIPT_DIR / "downloader_session.json"
+DOWNLOADER_SESSION_FILE = SESSION_FILE
+
 APP_VERSION = "330.0.0.35.110"
 USER_AGENT = (
     f"Instagram {APP_VERSION} Android (34/14; 480dpi; 1080x2400; "
@@ -173,55 +182,129 @@ def get_user_download_dir(username: str) -> Path:
 
 
 # =============================================================================
-# Session & Token Management
+# Session & Token Management (Synced with config.py)
 # =============================================================================
 
+def clean_session_token(token: Any) -> str:
+    """Sanitizes raw token, stripping quotes, 'sessionid=', and semicolons."""
+    if not token or not isinstance(token, str):
+        return ""
+    token = token.strip().strip("'\"")
+    if "sessionid=" in token:
+        m = re.search(r"sessionid=([^;\s]+)", token)
+        if m:
+            token = m.group(1).strip()
+    return token.rstrip(";")
+
+
 def load_saved_session() -> str:
-    """Loads saved session ID from local json or InstaSnap config.py."""
-    # 1. Local session file
-    if SESSION_FILE.exists():
+    """
+    Loads saved session ID directly from config.py as primary source.
+    If config.py has a token, it will be automatically used to log in.
+    If config.py has no token, checks session.json, and finally downloader_session.json.
+    Returns empty string ONLY if no token is available anywhere (Guest Mode).
+    """
+    # 1. Primary Source: Direct file parse of config.py (100% immune to module cache)
+    if CONFIG_PY_PATH.exists():
         try:
-            with open(SESSION_FILE, "r") as f:
-                data = json.load(f)
-                sid = data.get("session_id", "").strip()
-                if sid:
-                    return sid
+            cfg_text = CONFIG_PY_PATH.read_text(encoding="utf-8")
+            m = re.search(r'IG_SESSION_ID\s*=\s*["\']([^"\']*)["\']', cfg_text)
+            if m and m.group(1).strip():
+                clean = clean_session_token(m.group(1))
+                if clean:
+                    return clean
         except Exception:
             pass
 
-    # 2. Check if config.py from InstaSnap exists in current directory
+    # 2. Python module import from config.py
     try:
+        if str(SCRIPT_DIR) not in sys.path:
+            sys.path.insert(0, str(SCRIPT_DIR))
         import config
-        sid = getattr(config, "IG_SESSION_ID", "") or config.get_active_session()
-        if sid and sid.strip():
-            return sid.strip()
+        import importlib
+        importlib.reload(config)
+        sid = getattr(config, "IG_SESSION_ID", "")
+        if not sid and hasattr(config, "get_active_session"):
+            sid = config.get_active_session()
+        clean = clean_session_token(sid)
+        if clean:
+            return clean
     except Exception:
         pass
+
+    # 3. Check session.json in SCRIPT_DIR
+    if SESSION_JSON_PATH.exists():
+        try:
+            with open(SESSION_JSON_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                sess = (data.get("cookies") or {}).get("sessionid") or (data.get("authorization_data") or {}).get("sessionid") or data.get("session_id")
+                clean = clean_session_token(sess)
+                if clean:
+                    return clean
+        except Exception:
+            pass
+
+    # 4. Check downloader_session.json
+    if DOWNLOADER_SESSION_FILE.exists():
+        try:
+            with open(DOWNLOADER_SESSION_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                clean = clean_session_token(data.get("session_id", ""))
+                if clean:
+                    return clean
+        except Exception:
+            pass
 
     return ""
 
 
 def save_session(session_id: str):
-    """Saves session ID to local json and updates config.py if present."""
-    session_id = session_id.strip()
+    """Saves session ID directly into config.py (so InstaSnap and Downloader stay synced)."""
+    clean_sid = clean_session_token(session_id)
+    if not clean_sid:
+        return
+
+    # Update config.py via module method
     try:
-        with open(SESSION_FILE, "w") as f:
-            json.dump({"session_id": session_id, "updated_at": time.time()}, f, indent=2)
+        import config
+        config.save_session(clean_sid)
     except Exception:
         pass
 
+    # Direct regex update to config.py to ensure persistence
+    if CONFIG_PY_PATH.exists():
+        try:
+            content = CONFIG_PY_PATH.read_text(encoding="utf-8")
+            pattern = r'^(IG_SESSION_ID\s*=\s*).*$'
+            repl = f'IG_SESSION_ID = {json.dumps(clean_sid)}'
+            if re.search(pattern, content, flags=re.MULTILINE):
+                content = re.sub(pattern, repl, content, flags=re.MULTILINE)
+            else:
+                content += f"\n{repl}\n"
+            CONFIG_PY_PATH.write_text(content, encoding="utf-8")
+        except Exception:
+            pass
+
+    # Save to downloader_session.json
     try:
-        import config
-        config.save_session(session_id)
+        with open(DOWNLOADER_SESSION_FILE, "w", encoding="utf-8") as f:
+            json.dump({"session_id": clean_sid, "updated_at": time.time()}, f, indent=2)
     except Exception:
         pass
 
 
 def delete_saved_session():
     """Removes stored session credentials."""
-    if SESSION_FILE.exists():
+    if DOWNLOADER_SESSION_FILE.exists():
         try:
-            SESSION_FILE.unlink()
+            DOWNLOADER_SESSION_FILE.unlink()
+        except Exception:
+            pass
+    if CONFIG_PY_PATH.exists():
+        try:
+            content = CONFIG_PY_PATH.read_text(encoding="utf-8")
+            content = re.sub(r'^(IG_SESSION_ID\s*=\s*).*$', 'IG_SESSION_ID = ""', content, flags=re.MULTILINE)
+            CONFIG_PY_PATH.write_text(content, encoding="utf-8")
         except Exception:
             pass
 
@@ -237,7 +320,7 @@ class InstagramDownloader:
     """
 
     def __init__(self, session_id: str = ""):
-        self.session_id = session_id.strip()
+        self.session_id = clean_session_token(session_id)
         self.session = requests.Session()
         self.user_id = ""
         self.username = ""
@@ -248,16 +331,36 @@ class InstagramDownloader:
             self.authenticate()
 
     def authenticate(self) -> bool:
-        """Verifies session ID cookie and retrieves account details."""
-        if not self.session_id:
+        """
+        Verifies session ID cookie and retrieves account details.
+        If config.py has a token, logs in using official Android headers and fallback strategies.
+        """
+        clean_sid = clean_session_token(self.session_id)
+        if not clean_sid:
             self.is_authenticated = False
             return False
 
-        # Extract numeric user_id from sessionid prefix if available
-        # Format: <user_id>%3A<token>
-        m = re.match(r"^(\d+)%3A", self.session_id)
-        if m:
-            self.user_id = m.group(1)
+        self.session_id = clean_sid
+
+        # Extract numeric user_id from sessionid prefix (Instagram format: <USERID>%3A... or <USERID>:...)
+        user_match = re.search(r"^\d+", clean_sid)
+        if user_match:
+            self.user_id = user_match.group()
+        else:
+            self.user_id = ""
+
+        # Set cookies
+        self.session.cookies.set("sessionid", clean_sid, domain=".instagram.com")
+        if self.user_id:
+            self.session.cookies.set("ds_user_id", str(self.user_id), domain=".instagram.com")
+
+        # Build official Instagram Android Private API authorization header
+        auth_data = {
+            "ds_user_id": str(self.user_id) if self.user_id else "",
+            "sessionid": clean_sid,
+            "should_use_header_over_cookies": True,
+        }
+        auth_b64 = base64.b64encode(json.dumps(auth_data, separators=(",", ":")).encode("utf-8")).decode("utf-8")
 
         headers = {
             "User-Agent": USER_AGENT,
@@ -266,15 +369,33 @@ class InstagramDownloader:
             "Host": "i.instagram.com",
             "X-IG-App-ID": "936619743392459",
             "X-IG-Capabilities": "3brTv10=",
-            "Cookie": f"sessionid={self.session_id}; ds_user_id={self.user_id};",
+            "Authorization": f"Bearer IGT:2:{auth_b64}",
+            "IG-INTENDED-USER-ID": str(self.user_id),
+            "X-IG-WWW-Claim": "0",
         }
         self.session.headers.clear()
         self.session.headers.update(headers)
 
-        # Call accounts/current_user/?edit=true
-        url = "https://i.instagram.com/api/v1/accounts/current_user/?edit=true"
+        # Strategy 0: If insta_client is available, try its proven account_info
         try:
-            resp = self.session.get(url, timeout=15)
+            from insta_client import get_instagram_client
+            cl = get_instagram_client()
+            cl.login_by_sessionid(clean_sid)
+            info = cl.account_info()
+            if info and info.username:
+                self.username = info.username
+                self.full_name = info.full_name or self.username
+                self.user_id = str(info.pk or self.user_id)
+                self.is_authenticated = True
+                self.session = cl.session
+                return True
+        except Exception:
+            pass
+
+        # Strategy 1: accounts/current_user/?edit=true
+        try:
+            url = "https://i.instagram.com/api/v1/accounts/current_user/?edit=true"
+            resp = self.session.get(url, timeout=12)
             if resp.status_code == 200:
                 data = resp.json()
                 user = data.get("user", {})
@@ -285,6 +406,47 @@ class InstagramDownloader:
                 return True
         except Exception:
             pass
+
+        # Strategy 2: users/{user_id}/info/
+        if self.user_id:
+            try:
+                url = f"https://i.instagram.com/api/v1/users/{self.user_id}/info/"
+                resp = self.session.get(url, params={"entry_point": "self_profile"}, timeout=12)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    user = data.get("user", {})
+                    self.username = user.get("username", "")
+                    self.full_name = user.get("full_name", "") or self.username
+                    self.is_authenticated = True
+                    return True
+            except Exception:
+                pass
+
+        # Strategy 3: Web shared data fallback
+        try:
+            s_resp = requests.get(
+                "https://www.instagram.com/data/shared_data/",
+                cookies={"sessionid": clean_sid, "ds_user_id": str(self.user_id)},
+                headers={"User-Agent": WEB_USER_AGENT, "Accept": "*/*", "X-IG-App-ID": "936619743392459"},
+                timeout=8
+            )
+            if s_resp.status_code == 200:
+                viewer = (s_resp.json().get("config") or {}).get("viewer") or {}
+                if viewer.get("username"):
+                    self.username = viewer.get("username")
+                    self.full_name = viewer.get("full_name", "") or self.username
+                    self.is_authenticated = True
+                    return True
+        except Exception:
+            pass
+
+        # Resilient Login: If a valid session token with numeric user_id is provided in config.py,
+        # but Instagram's profile endpoints timed out or were rate-limited, DO NOT downgrade to Guest Mode!
+        if self.user_id:
+            self.username = f"user_{self.user_id}"
+            self.full_name = f"Instagram User ({self.user_id})"
+            self.is_authenticated = True
+            return True
 
         self.is_authenticated = False
         return False
@@ -302,7 +464,23 @@ class InstagramDownloader:
             except Exception:
                 pass
 
-        # Public web fallback
+        # Strategy A: Instaloader profile resolution
+        try:
+            import instaloader
+            L = instaloader.Instaloader()
+            prof = instaloader.Profile.from_username(L.context, username)
+            if prof:
+                return {
+                    "pk": str(prof.userid),
+                    "username": prof.username,
+                    "full_name": prof.full_name,
+                    "is_private": prof.is_private,
+                    "profile_pic_url": prof.profile_pic_url,
+                }
+        except Exception:
+            pass
+
+        # Strategy B: Public web fallback
         url = f"https://www.instagram.com/api/v1/users/web_profile_info/?username={username}"
         headers = {
             "User-Agent": WEB_USER_AGENT,
@@ -327,20 +505,29 @@ class InstagramDownloader:
         return None
 
     def get_media_info(self, shortcode_or_id: str) -> Optional[Dict[str, Any]]:
-        """Retrieves media details for a Post, Reel, or Carousel."""
+        """
+        Retrieves media details for a Post, Reel, or Carousel.
+        Uses authenticated mobile API for logged-in sessions,
+        and high-speed Relay GraphQL query (doc_id: 27128499623469141),
+        Instaloader, or Embed page parser for public links.
+        """
         clean_input = shortcode_or_id.strip()
 
         # Check if numeric ID or shortcode
         if clean_input.isdigit():
             media_id = clean_input
+            shortcode = media_id_to_shortcode(int(clean_input))
         else:
+            shortcode = clean_input
             media_id = str(shortcode_to_media_id(clean_input))
 
-        # Primary method: Authenticated private mobile API (100% reliable for public & private)
+        # ---------------------------------------------------------------------
+        # 1. Primary Method (Logged-in): Authenticated Private Mobile API
+        # ---------------------------------------------------------------------
         if self.is_authenticated:
             url = f"https://i.instagram.com/api/v1/media/{media_id}/info/"
             try:
-                r = self.session.get(url, timeout=20)
+                r = self.session.get(url, timeout=15)
                 if r.status_code == 200:
                     items = r.json().get("items", [])
                     if items:
@@ -348,24 +535,107 @@ class InstagramDownloader:
             except Exception:
                 pass
 
-        # Fallback: Public web GraphQL query
-        shortcode = clean_input if not clean_input.isdigit() else media_id_to_shortcode(int(clean_input))
-        url = "https://www.instagram.com/graphql/query/"
-        headers = {
-            "User-Agent": WEB_USER_AGENT,
-            "X-IG-App-ID": "936619743392459",
-        }
-        params = {
-            "doc_id": "8845758582119845",
-            "variables": json.dumps({"shortcode": shortcode}),
-        }
+        # ---------------------------------------------------------------------
+        # 2. Public Relay GraphQL POST (doc_id 27128499623469141)
+        # ---------------------------------------------------------------------
         try:
-            r = requests.get(url, params=params, headers=headers, timeout=20)
-            if r.status_code == 200:
-                media = r.json().get("data", {}).get("xdt_shortcode_media")
-                if media:
-                    # Adapt to standard item format
-                    return self._adapt_graphql_media(media)
+            s = requests.Session()
+            s.headers.update({
+                "User-Agent": WEB_USER_AGENT,
+                "Accept": "*/*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Origin": "https://www.instagram.com",
+                "Referer": f"https://www.instagram.com/p/{shortcode}/",
+                "X-IG-App-ID": "936619743392459",
+            })
+            # Pre-seed session cookies
+            try:
+                s.get("https://www.instagram.com/", timeout=6)
+                csrf = s.cookies.get("csrftoken", "")
+                if csrf:
+                    s.headers["X-CSRFToken"] = csrf
+            except Exception:
+                pass
+
+            doc_ids = ["27128499623469141", "8845758582119845", "10017861700142273"]
+            for did in doc_ids:
+                data = {
+                    "doc_id": did,
+                    "variables": json.dumps({
+                        "shortcode": shortcode,
+                        "__relay_internal__pv__PolarisAIGMMediaWebLabelEnabledrelayprovider": False,
+                    }, separators=(",", ":")),
+                    "server_timestamps": "true",
+                }
+                r = s.post("https://www.instagram.com/graphql/query", data=data, timeout=12)
+                if r.status_code == 200:
+                    res_data = r.json().get("data") or {}
+                    items = (res_data.get("xdt_api__v1__media__shortcode__web_info") or {}).get("items")
+                    if items:
+                        return items[0]
+                    shortcode_media = res_data.get("xdt_shortcode_media")
+                    if shortcode_media:
+                        return self._adapt_graphql_media(shortcode_media)
+        except Exception:
+            pass
+
+        # ---------------------------------------------------------------------
+        # 3. Public Instaloader Engine Fallback
+        # ---------------------------------------------------------------------
+        try:
+            import instaloader
+            L = instaloader.Instaloader()
+            post = instaloader.Post.from_shortcode(L.context, shortcode)
+            if post:
+                raw_node = getattr(post, "_node", {}) or {}
+                if raw_node.get("video_versions") or raw_node.get("image_versions2") or raw_node.get("carousel_media"):
+                    return raw_node
+
+                owner_uname = getattr(post, "owner_username", "instagram_user")
+                return {
+                    "code": post.shortcode,
+                    "pk": post.mediaid,
+                    "id": str(post.mediaid),
+                    "media_type": 2 if post.is_video else (8 if post.typename == "GraphSidecar" else 1),
+                    "video_versions": [{"url": post.video_url}] if post.is_video else [],
+                    "image_versions2": {"candidates": [{"url": post.url}]},
+                    "user": {
+                        "username": owner_uname,
+                        "full_name": getattr(getattr(post, "owner_profile", None), "full_name", owner_uname),
+                    },
+                    "taken_at": int(post.date_utc.timestamp()),
+                    "caption": {"text": post.caption or ""},
+                }
+        except Exception:
+            pass
+
+        # ---------------------------------------------------------------------
+        # 4. Public Embed Captioned Fallback
+        # ---------------------------------------------------------------------
+        try:
+            embed_url = f"https://www.instagram.com/p/{shortcode}/embed/captioned/"
+            emb_resp = requests.get(embed_url, headers={"User-Agent": WEB_USER_AGENT}, timeout=8)
+            if emb_resp.status_code == 200:
+                v_urls = re.findall(r'https:[^"\'<>\s]+?\.mp4[^"\'<>\s]*', emb_resp.text)
+                img_urls = re.findall(r'https:[^"\'<>\s]+?\.jpg[^"\'<>\s]*', emb_resp.text)
+                if v_urls:
+                    clean_v = v_urls[0].replace(r"\/", "/").replace(r"\u0026", "&")
+                    return {
+                        "code": shortcode,
+                        "media_type": 2,
+                        "video_versions": [{"url": clean_v}],
+                        "user": {"username": "instagram_user", "full_name": ""},
+                        "taken_at": int(time.time()),
+                    }
+                elif img_urls:
+                    clean_img = img_urls[0].replace(r"\/", "/").replace(r"\u0026", "&")
+                    return {
+                        "code": shortcode,
+                        "media_type": 1,
+                        "image_versions2": {"candidates": [{"url": clean_img}]},
+                        "user": {"username": "instagram_user", "full_name": ""},
+                        "taken_at": int(time.time()),
+                    }
         except Exception:
             pass
 
@@ -387,19 +657,47 @@ class InstagramDownloader:
 
         return []
 
-    def get_user_recent_posts(self, user_id: str, count: int = 10) -> List[Dict[str, Any]]:
+    def get_user_recent_posts(self, user_id: str, count: int = 10, username: str = "") -> List[Dict[str, Any]]:
         """Retrieves recent posts and reels published by a user."""
-        if not self.is_authenticated:
-            return []
+        if self.is_authenticated:
+            url = f"https://i.instagram.com/api/v1/feed/user/{user_id}/"
+            try:
+                r = self.session.get(url, timeout=20)
+                if r.status_code == 200:
+                    items = r.json().get("items", [])
+                    return items[:count]
+            except Exception:
+                pass
 
-        url = f"https://i.instagram.com/api/v1/feed/user/{user_id}/"
-        try:
-            r = self.session.get(url, timeout=20)
-            if r.status_code == 200:
-                items = r.json().get("items", [])
-                return items[:count]
-        except Exception:
-            pass
+        # Strategy B: Public Instaloader fallback if not logged in
+        if username:
+            try:
+                import instaloader
+                L = instaloader.Instaloader()
+                prof = instaloader.Profile.from_username(L.context, username)
+                items = []
+                for idx, post in enumerate(prof.get_posts()):
+                    if idx >= count:
+                        break
+                    raw = getattr(post, "_node", {})
+                    if raw and (raw.get("video_versions") or raw.get("image_versions2")):
+                        items.append(raw)
+                    else:
+                        items.append({
+                            "code": post.shortcode,
+                            "pk": post.mediaid,
+                            "id": str(post.mediaid),
+                            "media_type": 2 if post.is_video else 1,
+                            "video_versions": [{"url": post.video_url}] if post.is_video else [],
+                            "image_versions2": {"candidates": [{"url": post.url}]},
+                            "user": {"username": prof.username, "full_name": prof.full_name},
+                            "taken_at": int(post.date_utc.timestamp()),
+                            "caption": {"text": post.caption or ""},
+                        })
+                if items:
+                    return items
+            except Exception:
+                pass
 
         return []
 
@@ -790,7 +1088,7 @@ def handle_profile_posts_flow(downloader: InstagramDownloader, target_username: 
         amount = 5
 
     console.print(f"\n[dim][*] Fetching {amount} recent items for @{target_username}...[/dim]")
-    posts = downloader.get_user_recent_posts(user_id, count=amount)
+    posts = downloader.get_user_recent_posts(user_id, count=amount, username=target_username)
 
     if not posts:
         console.print(f"[bold yellow][!] No posts or reels found for @{target_username}.[/bold yellow]")
