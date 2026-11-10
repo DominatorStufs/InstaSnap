@@ -1,245 +1,392 @@
-⚡ InstaSnap — Instagram Instant (QuickSnap) Uploader
+# ⚡ InstaSnap --- Instagram Instant (QuickSnap) Uploader
 
+```{=html}
 <p align="center">
-  <img src="banner.png" alt="InstaSnap Banner by DominatorStufs" width="100%" />
-</p><p align="center">
-  <img src="https://img.shields.io/badge/Author-DominatorStufs-purple.svg?logo=github" alt="Author" />
-  <img src="https://img.shields.io/badge/Platform-Termux%20%7C%20Linux%20%7C%20Android-green.svg" alt="Platform" />
-  <img src="https://img.shields.io/badge/Python-3.9%2B-blue.svg" alt="Python" />
-  <img src="https://img.shields.io/badge/Instagram-Instant%20%28QuickSnap%29-E4405F.svg?logo=instagram" alt="Instagram" />
-  <img src="https://img.shields.io/badge/Architecture-100%25%20Pure%20Python-yellow.svg" alt="Pure Python" />
-  <img src="https://img.shields.io/badge/License-MIT-brightgreen.svg" alt="License" />
-</p><p align="center">
-  <a href="https://hub.xerj.org/contributors/DominatorStufs">
-    <img src="https://hub.xerj.org/contributors/DominatorStufs/badge.svg" alt="XERJ Corpus Hub Contributor" />
-  </a>
-</p>A clean, fast, lightweight command-line suite built specifically for Termux on Android and Linux. InstaSnap allows you to extract session cookies and upload disappearing Instagram Instants (QuickSnap) with verified account confirmation, strict single-file validation, and automatic zero-trace cache purging.
-
----
-
-🌐 Featured on XERJ Corpus Hub
-
+```
+`<img src="banner.png" alt="InstaSnap Banner by DominatorStufs" width="100%" />`{=html}
+```{=html}
+</p>
+```
+```{=html}
 <p align="center">
-  <a href="https://hub.xerj.org/contributors/DominatorStufs">
-    <img src="https://hub.xerj.org/contributors/DominatorStufs/badge.svg" alt="Featured on XERJ Corpus Hub" />
-  </a>
-</p>InstaSnap has been selected for the XERJ Corpus Hub, an open reference collection designed to help AI coding agents discover and learn from real-world open-source implementations.
+```
+`<img src="https://img.shields.io/badge/Author-DominatorStufs-purple.svg?logo=github" alt="Author" />`{=html}
+`<img src="https://img.shields.io/badge/Platform-Termux%20%7C%20Linux%20%7C%20Android-green.svg" alt="Platform" />`{=html}
+`<img src="https://img.shields.io/badge/Python-3.9%2B-blue.svg" alt="Python" />`{=html}
+`<img src="https://img.shields.io/badge/Instagram-Instant%20%28QuickSnap%29-E4405F.svg?logo=instagram" alt="Instagram" />`{=html}
+`<img src="https://img.shields.io/badge/Architecture-Python-yellow.svg" alt="Python" />`{=html}
+`<img src="https://img.shields.io/badge/License-MIT-brightgreen.svg" alt="License" />`{=html}
+```{=html}
+</p>
+```
+```{=html}
+<p align="center">
+```
+`<a href="https://hub.xerj.org/contributors/DominatorStufs">`{=html}
+`<img src="https://hub.xerj.org/contributors/DominatorStufs/badge.svg" alt="XERJ Corpus Hub Contributor" />`{=html}
+`</a>`{=html}
+```{=html}
+</p>
+```
+**InstaSnap** is a command-line toolkit designed for Termux on Android
+and Linux. It provides tools for working with Instagram media, including
+an Instant (QuickSnap) uploader and a downloader for Reels, posts,
+carousels, and stories.
 
-This inclusion makes InstaSnap's implementation discoverable as a reference for developers and AI coding agents.
+> **Important:** Instagram may change or restrict its services and APIs
+> at any time. This project is independent and is not affiliated with,
+> endorsed by, or supported by Instagram or Meta. Use it only with
+> accounts and content you are authorized to access, and follow
+> Instagram's terms and applicable laws.
 
-- Contributor: DominatorStufs
-- Project: InstaSnap
-- Platform: XERJ Corpus Hub
+------------------------------------------------------------------------
 
-🔗 "View My XERJ Contributor Profile" (https://hub.xerj.org/contributors/DominatorStufs)
+## 🌐 Featured on XERJ Corpus Hub
 
----
+InstaSnap has been included in the **XERJ Corpus Hub**, an open
+reference collection intended to help developers and AI coding agents
+discover real-world open-source implementations.
 
-🎬 Live Product Walkthrough
+-   **Contributor:** DominatorStufs
+-   **Project:** InstaSnap
+-   **Contributor profile:** [DominatorStufs on
+    XERJ](https://hub.xerj.org/contributors/DominatorStufs)
+-   **Repository:**
+    [DominatorStufs/InstaSnap](https://github.com/DominatorStufs/InstaSnap)
 
-Watch InstaSnap in action — step-by-step from automatic cookie extraction to 1-click Instant dispatch:
+The XERJ listing makes the project discoverable as a code reference. It
+does not imply endorsement by XERJ, Instagram, or Meta.
+
+------------------------------------------------------------------------
+
+## 🎬 Live Product Walkthrough
+
+Watch the project walkthrough:
 
 https://github.com/user-attachments/assets/99dce6ee-6e8a-40d4-8d4d-c6cbb79816cb
 
----
+------------------------------------------------------------------------
 
-📁 Project Architecture & File Roles
+## 📁 Project Architecture & File Roles
 
-Here is what each file does and why it exists:
-
+``` text
 instasnap/
-├── 🚀 instant_uploader.py   # [DISPATCHER] 1-Click Instagram Instant (QuickSnap) uploader
-├── 📥 insta_downloader.py   # [DOWNLOADER] All-in-one Reel, Post, Carousel & Story downloader
-├── 🍪 cookie_extractor.py   # [AUTHENTICATOR] Standalone login tool to get session cookies
-├── ⚙️  config.py             # [SETTINGS] Central configuration (session ID & audience)
-├── 🧠 insta_client.py       # [ENGINE] Core Instagram mobile API backend & device emulation
-├── 📦 setup.sh              # [INSTALLER] 1-Click automated Termux environment setup
-├── 📋 requirements.txt      # [DEPENDENCIES] Pure Python libraries (requests, rich)
-├── 🛡️  .gitignore            # [SECURITY] Prevents committing sessions and media
-├── 📜 LICENSE               # [LICENSE] MIT Open-Source License
-├── 📖 README.md             # [DOCS] Full user manual & documentation
-└── 📁 instant/              # [MEDIA FOLDER] Temporary folder where you place photos/videos
-    ├── .gitkeep             # Preserves directory in Git
-    └── __init__.py          # Permanent helper file (never deleted by cleanup)
+├── instant_uploader.py   # Instagram Instant (QuickSnap) uploader
+├── insta_downloader.py   # Reels, posts, carousels, and stories downloader
+├── cookie_extractor.py   # Login/session extraction helper
+├── config.py             # Local settings (may contain sensitive session data)
+├── insta_client.py       # Core Instagram client and request handling
+├── setup.sh              # Termux/Linux setup script
+├── requirements.txt      # Python dependencies
+├── .gitignore            # Excludes local secrets and temporary files
+├── LICENSE               # MIT license
+├── README.md             # Project documentation
+└── instant/              # Temporary upload media folder
+    ├── .gitkeep
+    └── __init__.py
+```
 
----
+The exact files in your checkout may differ. Keep local credentials,
+generated device identifiers, and temporary media out of version
+control.
 
-🌟 Key Features
+------------------------------------------------------------------------
 
-- 🛡️ Live Verified Account Dashboard:
-  - Validates your session cookie with Instagram and displays your Instagram Full Name, Username, and User ID in an active status card before uploading.
-- 🍪 1-Click Cookie Extractor ("cookie_extractor.py"):
-  - Don't want to copy cookies from your web browser? Simply run "cookie_extractor.py", enter your username and password, and it will handle 2FA/checkpoints, extract your "sessionid", and automatically update "config.py".
-- ⚡ Fast Direct Session Authentication:
-  - Once your session is saved in "config.py", future uploads are instant—no repeated passwords or login challenges.
-- 📱 Real Device Emulation ("device.json"):
-  - Emulates an authentic Samsung Galaxy S24 Ultra with persistent hardware IDs to keep your account safe.
-- 🛡️ Strict Single-File Policy:
-  - Verifies that exactly one media file is in "instant/". If the folder is empty or contains multiple files, it halts with clear diagnostics.
-- 🧹 Zero-Trace Automatic Cleanup:
-  - Uploaded media and temporary thumbnail cache files are immediately deleted after upload.
-  - Permanent files ("__init__.py", ".gitkeep") are strictly preserved.
-- 🎨 Modern Terminal UI:
-  - Dynamic spinners, checkmarks ("✔"), real-time upload progress bars, and clean rounded panels—100% in pure English!
+## 🌟 Key Features
 
----
+-   **Account status display:** Checks the configured session and
+    displays account information when the service responds successfully.
+-   **Session helper:** `cookie_extractor.py` can obtain a session for
+    local use and update the local configuration.
+-   **Session-based authentication:** Reuses a locally stored session
+    rather than asking for credentials on every run.
+-   **Device configuration:** Supports persistent device settings where
+    implemented by the client.
+-   **Single-file upload validation:** The uploader checks that the
+    `instant/` folder contains exactly one eligible media file before
+    proceeding.
+-   **Temporary-file cleanup:** Removes upload media and temporary cache
+    files after a successful upload, while preserving designated helper
+    files.
+-   **Terminal interface:** Uses terminal status panels, progress
+    indicators, and prompts.
+-   **Media downloader:** Supports downloading supported public media
+    and, where authorized and available, content accessible to the
+    signed-in account.
 
-🚀 Complete Step-by-Step Usage Guide
+Feature availability depends on Instagram's current service behavior and
+the implementation in the checked-out version.
 
-Step 1: Termux Environment Setup
+------------------------------------------------------------------------
 
-Open Termux and run:
+## 🚀 Installation & Usage
 
-# Update Termux packages and install prerequisites
-pkg update -y && pkg install python ffmpeg git -y
+### Step 1: Prepare Termux
 
-# Run the automated installer
+Update packages and install prerequisites:
+
+``` bash
+pkg update -y
+pkg install python ffmpeg git -y
+```
+
+Clone the repository and enter its directory:
+
+``` bash
+git clone https://github.com/DominatorStufs/InstaSnap.git
+cd InstaSnap
+```
+
+Run the setup script:
+
+``` bash
 bash setup.sh
+```
 
----
+If you already have the repository, update it with your preferred Git
+workflow rather than cloning it again.
 
-Step 2: Extract Your Instagram Session Cookie
+### Step 2: Configure your Instagram session
 
-Run the standalone extractor:
+Run the helper:
 
+``` bash
 python cookie_extractor.py
+```
 
-1. Enter your Instagram Username and Password.
-2. If Two-Factor Authentication (2FA) is enabled, enter your 6-digit SMS or Authenticator code when prompted.
-3. The script extracts your "sessionid" and automatically saves it into "config.py"!
+Follow the prompts shown by the program. If two-factor authentication or
+an Instagram checkpoint is requested, complete it only through the
+expected, trusted flow.
 
-(Note: You only need to run this once or whenever your session cookie expires).
+**Session security:** - A session cookie is equivalent to a credential.
+Anyone who obtains it may be able to access your account. - Never send
+your session cookie, password, 2FA code, or `config.py` to anyone. -
+Never paste live credentials into GitHub issues, screenshots, logs, or
+public chat. - Store credentials only on a device you control. - If you
+believe a session has been exposed, log out/revoke active sessions
+through Instagram's account security settings and create a new session
+only if needed. - Do not commit a populated `config.py`. Keep secrets in
+local, ignored files.
 
-Security note: Your Instagram session cookie is highly sensitive. Never share it, commit it to Git, or include it in screenshots, logs, or public documentation.
+### Step 3: Add one media file
 
----
+Place exactly one supported photo or video in the `instant/` folder.
 
-Step 3: Put Media in "instant/"
+**Supported photo extensions:** `.jpg`, `.jpeg`, `.png`, `.webp`,
+`.heic`
 
-Copy or move exactly one photo or video into the "instant/" folder:
+**Supported video extensions:** `.mp4`, `.mov`, `.m4v`, `.mkv`
 
-- Supported Photos: ".jpg", ".jpeg", ".png", ".webp", ".heic"
-- Supported Videos: ".mp4", ".mov", ".m4v", ".mkv" (recommended under 50 MB, 1-15 seconds)
+Example:
 
-# Example copying a photo from your phone storage in Termux:
+``` bash
 cp /sdcard/DCIM/Camera/IMG_01.jpg instant/
+```
 
-# Example copying a video:
+Or:
+
+``` bash
 cp /sdcard/DCIM/Camera/VID_01.mp4 instant/
+```
 
----
+The actual supported formats and size/duration limits depend on the
+current implementation and Instagram's restrictions.
 
-Step 4: Dispatch Your Instant
+### Step 4: Run the uploader
 
-Run the uploader:
-
+``` bash
 python instant_uploader.py
+```
 
-1. Verified Dashboard: The script connects to Instagram and displays your verified account card:
-   
-   ╭──────────────────────── ✔ VERIFIED INSTAGRAM ACCOUNT ────────────────────────╮
-│                                                                              │
-│  👤 Account Name:  Your Full Name     🛡️ Status:         Verified & Active   │
-│  📛 Username:      @your_username     🎯 Upload          Instant             │
-│                                       Channel:           (QuickSnap)         │
-│  🆔 User ID:       YOUR_INSTAGRAM_ID  👥 Audience:       Mutual Followers    │
-│                                                                              │
-╰──────────────────────────────────────────────────────────────────────────────╯
+Follow the on-screen prompts. Depending on the current version, the
+program may offer actions such as:
 
-2. Select Action:
-   
-   - "[1]" 📸 Upload Single Photo ("instant/" folder) — 100% Reliable & Active
-   - "[2]" 🎥 Upload Single Video "[Temporary Closed]"
-   - "[3]" 📜 View Active Instant History & Delete
-   - "[4]" 🔄 Switch / Update Instagram Session Cookie
-   - "[5]" 🚪 Exit
+1.  Upload a photo
+2.  Upload a video (if enabled)
+3.  View or manage Instant history
+4.  Update the configured session
+5.  Exit
 
-3. Choose Audience:
-   
-   - "[1]" 👥 Mutual Followers / Friends (Default Instant)
-   - "[2]" ⭐ Close Friends Only
+Choose the audience and other options only as presented by the
+application. Do not assume that a successful local request guarantees
+Instagram will publish or deliver the media.
 
-4. Auto-Purge: As soon as Instagram confirms publication, the media file in "instant/" is automatically deleted!
+------------------------------------------------------------------------
 
----
+## ⚙️ Configuration Reference
 
-⚙️ Configuration Reference ("config.py")
+The project uses `config.py` for local settings. The following is a
+**safe example only**; do not replace it with a real session value in
+this README:
 
-Settings are stored directly in "config.py" without requiring any ".env" file:
+``` python
+# Local Instagram authentication.
+# Keep the real value private and do not commit it.
+IG_SESSION_ID = "YOUR_INSTAGRAM_SESSION_ID"
 
-# Instagram Authentication & Credentials
-IG_SESSION_ID = "YOUR_INSTAGRAM_SESSION_ID"  # Automatically populated by cookie_extractor.py
-
-# Default Target Audience for Instants:
-#   • "mutual_followers" -> Shows to mutual followers (Friends who follow each other)
-#   • "close_friends"    -> Shows ONLY to your Instagram Close Friends list
+# Default audience setting:
+# "mutual_followers" or "close_friends", if supported by your version.
 IG_AUDIENCE = "mutual_followers"
 
-# Media Upload Limits
-MAX_VIDEO_SIZE_MB = 100.0           # Absolute ceiling enforced by Instagram API
-RECOMMENDED_VIDEO_SIZE_MB = 50.0    # Optimal QuickSnap limit (1-15s clips)
+# Example media settings, if supported by your version.
+MAX_VIDEO_SIZE_MB = 100.0
+RECOMMENDED_VIDEO_SIZE_MB = 50.0
+```
 
-Important: Never publish your real "IG_SESSION_ID", passwords, access tokens, or other private credentials.
+Do not publish actual usernames, numeric account IDs, session cookies,
+passwords, access tokens, or device identifiers in examples.
 
----
+------------------------------------------------------------------------
 
-🛡️ Single-File Policy & Error Guard
+## 🛡️ Upload Validation & Cleanup
 
-Scenario| Script Behavior| Resolution
-0 files in "instant/"| ⚠️ Displays yellow warning panel: "FOLDER IS EMPTY"| Move 1 photo or video into "instant/".
->1 files in "instant/"| 🛑 Displays red error table listing all files: "STRICT POLICY VIOLATION"| Delete extra files until only 1 remains.
-Video placed, Picture selected| 🛑 Displays "TYPE MISMATCH: Found video, selected Picture"| Select option "[2]" or replace with a photo.
-Photo placed, Video selected| 🛑 Displays "TYPE MISMATCH: Found photo, selected Video"| Select option "[1]" or replace with a video.
-"__init__.py" in "instant/"| 🔒 Fully ignored by file counter and protected from deletion| Remains permanently in folder.
-Upload succeeds| ✅ Media file and all temporary cache files deleted immediately| Folder is reset clean for next run.
+  -----------------------------------------------------------------------
+  Situation                           Expected handling
+  ----------------------------------- -----------------------------------
+  No eligible files in `instant/`     The uploader should report that the
+                                      folder is empty.
 
----
+  More than one eligible media file   The uploader should stop and ask
+                                      you to leave one file.
 
-📥 InstaDownloader — Reels, Posts & Stories Downloader
+  Unsupported file type               The uploader should reject the file
+                                      or report the unsupported format.
 
-An all-in-one media downloader built directly into the suite:
+  Upload succeeds                     Temporary media/cache cleanup may
+                                      run according to the
+                                      implementation.
 
+  Upload fails                        Check the error output before
+                                      retrying; verify whether temporary
+                                      files remain.
+  -----------------------------------------------------------------------
+
+Always keep a separate backup of original media. Automatic cleanup is
+not a substitute for a backup.
+
+------------------------------------------------------------------------
+
+## 📥 InstaDownloader --- Reels, Posts & Stories
+
+Run the downloader:
+
+``` bash
 python insta_downloader.py
+```
 
-🌟 Downloader Features:
+The project includes a downloader intended for supported Instagram media
+types, including:
 
-- 🌐 Public Content Without Login: Paste any public Reel, Post, or Carousel link to download immediately in full HD without requiring credentials.
+-   Public Reels, posts, and carousels.
+-   Stories and private-account media only when the signed-in account is
+    authorized to view them and the implementation supports the request.
+-   Organized downloads in a dedicated folder where supported.
+-   Progress information during downloads.
 
-- 🔒 Private Content & Stories: Seamlessly uses your session cookie to download from private profiles you follow and active 24-hour stories.
+Respect creators' rights and privacy. Do not download, redistribute, or
+publish content without permission where permission is required.
 
-- 📱 Dedicated Storage Organization:
-  
-  Automatically detects your Android phone's Download folder and organizes media inside a dedicated folder by username:
-  
-  /sdcard/Download/insta-download/
-└── <target_username>/
-    ├── <username>_reel_20261026_163000.mp4
-    ├── <username>_story_20261026_163000.mp4
-    └── <username>_carousel_20261026_163000_1.jpg
+------------------------------------------------------------------------
 
-- ⚡ Real-time Progress Bar: Shows live download percentage, download speed (MB/s), and completed file size.
+## ❓ Frequently Asked Questions
 
----
+**Q1: What is an Instagram Instant (QuickSnap)?**
 
-❓ Frequently Asked Questions (FAQ)
+Instagram features and names can change over time. InstaSnap's uploader
+is intended to work with the Instant/QuickSnap workflow implemented by
+this project. Availability depends on Instagram's current service
+behavior.
 
-Q1: What is an Instagram Instant (QuickSnap)?
+**Q2: Do I need to obtain a session every time?**
 
-Instagram Instants (QuickSnaps) appear in the direct message inbox stack for mutual followers or close friends and disappear after viewing. InstaSnap enables you to dispatch photos and short videos directly from Termux / Linux CLI to your friends' Instant stack.
+The project is designed to reuse a locally stored session while it
+remains valid. Instagram may expire or revoke sessions, in which case
+you may need to authenticate again.
 
-Q2: How often do I need to run "cookie_extractor.py"?
+**Q3: Is it safe to share my `config.py`?**
 
-Only once! Once extracted, the session is saved in "config.py" and reused for all future runs. You only run it again if you log out of Instagram or change your password.
+No, not if it contains a real session cookie or other credentials. Keep
+it private and excluded from Git.
 
----
+**Q4: Does XERJ endorsement mean Instagram officially supports this
+project?**
 
-🌐 Community & Recognition
+No. XERJ inclusion is a separate code-discovery listing. InstaSnap is an
+independent project and is not affiliated with Instagram or Meta.
 
-- XERJ Corpus Hub: "DominatorStufs Contributor Profile" (https://hub.xerj.org/contributors/DominatorStufs)
-- GitHub Repository: "DominatorStufs/InstaSnap" (https://github.com/DominatorStufs/InstaSnap)
+------------------------------------------------------------------------
 
----
+## 🔐 Repository Security Checklist
 
-📜 License
+Before pushing changes to GitHub, verify that:
 
-This project is open-source and released under the "MIT License" (LICENSE).
+-   [ ] No real Instagram session cookie is present in tracked files.
+-   [ ] No passwords, 2FA codes, access tokens, or private keys are
+    present.
+-   [ ] Local configuration and device files containing secrets are
+    ignored.
+-   [ ] Temporary media and downloaded private content are not
+    committed.
+-   [ ] Previous commits have been checked for accidentally committed
+    secrets.
+
+Example `.gitignore` entries (adjust to your actual project structure):
+
+``` gitignore
+# Local credentials and configuration
+config.py
+.env
+.env.*
+device.json
+session*
+*cookie*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Temporary media and caches
+instant/*
+!instant/.gitkeep
+!instant/__init__.py
+*.tmp
+*.cache
+```
+
+**Important:** If a secret was committed in the past, adding it to
+`.gitignore` does not remove it from Git history. Revoke or rotate the
+exposed credential first, then clean the repository history if
+appropriate.
+
+------------------------------------------------------------------------
+
+## 🤝 Community & Recognition
+
+-   **XERJ Contributor Profile:**
+    [DominatorStufs](https://hub.xerj.org/contributors/DominatorStufs)
+-   **XERJ Corpus Hub:** [hub.xerj.org](https://hub.xerj.org/)
+-   **GitHub Repository:**
+    [DominatorStufs/InstaSnap](https://github.com/DominatorStufs/InstaSnap)
+
+If you find a problem or have a suggestion, please open an issue in the
+GitHub repository. Do not include credentials, session cookies, or
+private account information in an issue.
+
+------------------------------------------------------------------------
+
+## 📜 License
+
+This project is released under the [MIT License](LICENSE).
+
+------------------------------------------------------------------------
+
+```{=html}
+<p align="center">
+```
+Made with ⚡ by
+`<a href="https://github.com/DominatorStufs">`{=html}DominatorStufs`</a>`{=html}
+```{=html}
+</p>
+```
